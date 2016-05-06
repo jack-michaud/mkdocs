@@ -143,11 +143,16 @@ def django_convert(content, config):
         if tag.get('href') is not None:
             if tag['href'][0] == '.':
                 tag['href'] = "{% " + "static '{}/{}'".format('docs',tag['href']) + " %}"
+    for tag in soup.find_all('img'):
+        if tag.get('src') is not None:
+            if tag['src'][0] == '.':
+                tag['src'] = "{% " + "static '{}/{}'".format('docs',tag['src']) + " %}"
+
     # for tag in soup.find_all('a'):
     #     if tag.get('href') is not None:
     #         if tag['href'][0] == '.':
     #             tag['href'] = "{% " + "static '{}/{}'".format('docs',tag['href']) + " %}"
-    
+
     converted_content = str(soup)
     return converted_content
 

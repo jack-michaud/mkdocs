@@ -2,6 +2,116 @@
 
 Project documentation with Markdown.
 
+#### To download and install, use the method detailed [here](http://www.mkdocs.org/about/contributing/#installing-for-development). Remember to clone this repo!
+You can use my version the same way you can the original mkdocs...
+The difference is you can specify your Django app name in the mkdocs.yml as such:
+```yaml
+site_name: Foobar
+pages: 
+- Home: index.md
+- About: about.md
+theme: readthedocs
+dj_app_name: my_django_app_name <--
+
+```
+
+All static file references in img, link, and script tags are turned to Django {% static '...' %} tags and {% load staticfiles %} is inserted at the beginning of the file. 
+
+Here's an example of how you can use this mkdocs in Django.
+
+```bash
+
+django-admin startproject testproj && cd testproj
+python manage.py startapp docs && cd docs
+mkdir static && cd static    
+mkdir docs 
+
+# Here's our folder structure:
+#    ├── docs
+#    │   ├── __init__.py
+#    │   ├── admin.py
+#    │   ├── apps.py
+#    │   ├── migrations
+#    │   │   └── __init__.py
+#    │   ├── models.py
+#    │   ├── static         #/static/ is where staticfiles are found by default (see testproj/settings.py)
+#    │   │   └── docs
+#    │   ├── tests.py
+#    │   └── views.py
+#    ├── manage.py
+#    └── testproj
+#        ├── __init__.py
+#        ├── __init__.pyc
+#        ├── settings.py
+#        ├── settings.pyc
+#        ├── urls.py
+#        └── wsgi.py
+
+cd ..
+mkdir templates && cd templates
+mkdir docs
+
+
+
+```
+
+Generate your mkdocs (see [MkDocs documentation][mkdocs])...
+Drag all the HTML files into the /templates/docs folder and the css, fonts, js, and img folders into the /static/docs folder.
+
+```
+
+docs 
+├── static
+│   └── docs
+│       ├── css
+│       │   ├── highlight.css
+│       │   ├── theme.css
+│       │   └── theme_extra.css
+│       ├── fonts
+│       │   ├── fontawesome-webfont.eot
+│       │   ├── fontawesome-webfont.svg
+│       │   ├── fontawesome-webfont.ttf
+│       │   └── fontawesome-webfont.woff
+│       ├── img
+│       │   └── favicon.ico
+│       └── js
+│           ├── highlight.pack.js
+│           ├── jquery-2.1.1.min.js
+│           ├── modernizr-2.8.3.min.js
+│           └── theme.js
+└── templates
+    └── docs
+        └── index.html
+
+```
+
+Set up the views, urls, and apps as per usual; see the [Django documentation](https://docs.djangoproject.com/en/1.9/intro/). 
+Remember, you have to set up a view for each HTML file you drag in from the generated site from mkdocs.
+
+```python
+
+#### /docs/views.py
+
+from django.shortcuts import render
+
+# Create your views here.
+def index(request):
+    return render(request, 'docs/index.html', {})
+
+#### /testproj/urls.py
+
+from django.conf.urls import url
+from django.contrib import admin
+import docs.views
+
+urlpatterns = [
+    url(r'^admin/', admin.site.urls),
+    url(r'^', docs.views.index),
+]
+
+```
+
+
 ---
 
 [![PyPI Downloads][pypi-dl-image]][pypi-dl-link]
