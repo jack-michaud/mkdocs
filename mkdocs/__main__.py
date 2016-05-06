@@ -206,3 +206,4 @@ def new_command(project_directory):
 
 if __name__ == '__main__':
     cli()
+

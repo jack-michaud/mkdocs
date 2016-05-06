@@ -154,9 +154,9 @@ def load_config(config_file=None, **kwargs):
     cfg.load_file(config_file)
     # Then load the options to overwrite anything in the config.
     cfg.load_dict(options)
-
+    
     errors, warnings = cfg.validate()
-
+    
     for config_name, warning in warnings:
         log.warning("Config value: '%s'. Warning: %s", config_name, warning)
 

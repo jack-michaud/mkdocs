@@ -131,6 +131,25 @@ def get_page_context(page, content, toc, meta, config):
         'next_page': page.next_page
     }
 
+def django_convert(content, config):
+    from bs4 import BeautifulSoup
+    content = "{%" + "load staticfiles" + "%}" + content
+    soup = BeautifulSoup(content, 'html.parser')
+    for tag in soup.find_all('script'):
+        if tag.get('src') is not None:
+            if tag['src'][0] == '.':
+                tag['src'] = "{% " + "static '{}/{}'".format('docs',tag['src']) + " %}"
+    for tag in soup.find_all('link'):
+        if tag.get('href') is not None:
+            if tag['href'][0] == '.':
+                tag['href'] = "{% " + "static '{}/{}'".format('docs',tag['href']) + " %}"
+    # for tag in soup.find_all('a'):
+    #     if tag.get('href') is not None:
+    #         if tag['href'][0] == '.':
+    #             tag['href'] = "{% " + "static '{}/{}'".format('docs',tag['href']) + " %}"
+    
+    converted_content = str(soup)
+    return converted_content
 
 def build_template(template_name, env, config, site_navigation=None):
 
@@ -195,7 +214,11 @@ def _build_page(page, config, site_navigation, env, dump_json):
         json_output = json.dumps(json_context, indent=4).encode('utf-8')
         utils.write_file(json_output, output_path.replace('.html', '.json'))
     else:
-        utils.write_file(output_content.encode('utf-8'), output_path)
+        if config['dj_app_name'] is not None:
+            content = django_convert(output_content.encode('utf-8'), config)
+            utils.write_file(content, output_path)
+        else:
+            utils.write_file(output_content.encode('utf-8'), output_path)
 
     return html_content, table_of_contents, meta
 
@@ -283,7 +306,7 @@ def build_pages(config, dump_json=False):
             raise
 
     search_index = search_index.generate_search_index()
-    json_output_path = os.path.join(config['site_dir'], 'mkdocs', 'search_index.json')
+    json_output_path = os.path.join(config['site_dir'], 'mkdocs', 'search_index.json')    
     utils.write_file(search_index.encode('utf-8'), json_output_path)
 
 
